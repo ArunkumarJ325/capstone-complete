@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    restart: always
+    networks:
+      - app-network
+
+  appointment-service:
+    build: ./appointment-service
+    ports:
+      - "3004:3004"
+    restart: always
+    networks:
+      - app-network
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "3001:3001"
+    restart: always
+    networks:
+      - app-network
+
+  billing-service:
+    build: ./billing-service
+    ports:
+      - "5009:5009"
+    restart: always
+    networks:
+      - app-network
+
+  consulation-service:
+    build: ./consulation-service
+    ports:
+      - "5006:5006"
+    restart: always
+    networks:
+      - app-network
+
+  department-service:
+    build: ./department-service
+    ports:
+      - "3003:3003"
+    restart: always
+    networks:
+      - app-network
+
+  doctor-service:
+    build: ./doctor-service
+    ports:
+      - "3002:3002"
+    restart: always
+    networks:
+      - app-network
+
+  hospital-admin-schedule-service:
+    build: ./hospital-admin-schedule-service
+    ports:
+      - "3005:3005"
+    restart: always
+    networks:
+      - app-network
+
+  lab-services:
+    build: ./lab-services
+    ports:
+      - "5008:5008"
+    restart: always
+    networks:
+      - app-network
+
+  nurse-service:
+    build: ./nurse-service
+    ports:
+      - "3007:3007"
+    restart: always
+    networks:
+      - app-network
+
+  patient-service:
+    build: ./patient-service
+    ports:
+      - "3006:3006"
+    restart: always
+    networks:
+      - app-network
+
+  frontend-tailwind-css:
+    build: ./frontend-tailwind-css
+    ports:
+      - "5173:5173"
+    restart: always
+    networks:
+      - app-network
+    
+
+networks:
+  app-network:
+    driver: bridge
