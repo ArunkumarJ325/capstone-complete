@@ -23,16 +23,15 @@ app.get('/api/billing/health', (req, res) => {
 // Routes
 app.use('/api/billing', billingRoutes);
 
+const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/billing-service';
+
 // MongoDB connection
-mongoose.connect('mongodb://127.0.0.1:27017/billing-service', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-  .then(() => console.log('Connected to MongoDB for billing-service'))
+mongoose.connect(mongoUrl)
+  .then(() => console.log(`Connected to MongoDB for billing-service at ${mongoUrl}`))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
 // Start server
-const port = 5009;
+const port = process.env.PORT || 5009;
 app.listen(port, () => {
   console.log(`billing service running on port ${port}`);
 });

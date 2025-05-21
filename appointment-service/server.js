@@ -22,17 +22,16 @@ app.get('/api/appointment/health', (req, res) => {
 
 // Routes
 app.use('/api/appointment', appointmentRoutes);
+// Use MONGO_URL if provided, otherwise fallback to local MongoDB
+const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/appointment-service';
 
 // MongoDB connection
-mongoose.connect('mongodb://127.0.0.1:27017/appointment-service', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-  .then(() => console.log('Connected to MongoDB for appointment-service'))
+mongoose.connect(mongoUrl)
+  .then(() => console.log(`Connected to MongoDB at ${mongoUrl}`))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
 // Start server
-const port = 3004;
+const port = process.env.PORT || 3004;
 app.listen(port, () => {
   console.log(`Appointment service running on port ${port}`);
 });

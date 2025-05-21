@@ -4,6 +4,7 @@ import AddConsultationDialog from "./AddConsultationDialog";
 
 const API_BASE = "http://localhost:3000/api/doctor";
 const HOSPITAL_API_BASE = "http://localhost:3000/api/auth/hospitals";
+const APPOINTMENT_API_BASE = "http://localhost:3000/api/appointment";
 
 interface Profile {
   _id: string;
@@ -19,6 +20,7 @@ interface Appointment {
   timeSlot: string;
   patientId: string;
   patientName: string;
+  status: string;
 }
 
 interface Patient {
@@ -56,12 +58,18 @@ const DoctorDashboard: FC = () => {
   useEffect(() => {
     const fetchProfileAndSchedule = async () => {
       try {
-        const [profRes, schedRes] = await Promise.all([
+        const [profRes, scheduleRes] = await Promise.all([
           axios.get<Profile>(`${API_BASE}/profile`, getAuthHeader()),
           axios.get<Appointment[]>(`${API_BASE}/schedule/me`, getAuthHeader()),
         ]);
+        console.log('Fetched schedule:', scheduleRes.data);
         setProfile(profRes.data);
-        setSchedule(schedRes.data);
+        setSchedule(scheduleRes.data);
+        
+        // Fetch patients for the doctor
+        const patientsRes = await axios.get<Patient[]>(`${API_BASE}/${profRes.data._id}/patients`, getAuthHeader());
+        console.log('Fetched patients:', patientsRes.data);
+        setPatients(patientsRes.data);
         
         if (profRes.data.hospitalId) {
           const hospitalRes = await axios.get<Hospital>(
@@ -71,7 +79,7 @@ const DoctorDashboard: FC = () => {
           setHospital(hospitalRes.data);
         }
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
       }
@@ -157,9 +165,16 @@ const DoctorDashboard: FC = () => {
     );
   }
 
-  const todayAppointments = schedule.filter(
-    (appt) => new Date(appt.date).toDateString() === new Date().toDateString()
-  );
+  const todayAppointments = schedule.filter((appt) => {
+    const appointmentDate = new Date(appt.date).toDateString();
+    const today = new Date().toDateString();
+    console.log('Comparing dates:', {
+      appointmentDate,
+      today,
+      matches: appointmentDate === today
+    });
+    return appointmentDate === today;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -241,7 +256,10 @@ const DoctorDashboard: FC = () => {
                       <h3 className="text-lg font-semibold text-gray-900">
                         {appointment.patientName}
                       </h3>
-                      <p className="text-sm text-gray-500">{appointment.timeSlot}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(appointment.date).toLocaleString()}
+                      </p>
+                      <p className="text-sm text-gray-500">Status: {appointment.status}</p>
                     </div>
                     <button
                       onClick={() => handleOpenConsultationDialog(appointment.patientId, appointment._id)}
@@ -258,6 +276,37 @@ const DoctorDashboard: FC = () => {
                 </p>
               )}
             </div>
+
+            <h2 className="text-2xl font-bold text-gray-900 mt-8">All Patients</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {patients.map((patient) => (
+                <div
+                  key={patient._id}
+                  className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {patient.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">{patient.email}</p>
+                      <p className="text-sm text-gray-500">{patient.phone}</p>
+                    </div>
+                    <button
+                      onClick={() => handleOpenConsultationDialog(patient._id, "")}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                    >
+                      Add Consultation
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {patients.length === 0 && (
+                <p className="text-gray-500 col-span-full text-center py-4">
+                  No patients found.
+                </p>
+              )}
+            </div>
           </div>
         )}
 
@@ -266,29 +315,41 @@ const DoctorDashboard: FC = () => {
             <h2 className="text-2xl font-bold text-gray-900">My Schedule</h2>
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <div className="divide-y divide-gray-200">
-                {schedule.map((appointment) => (
-                  <div
-                    key={appointment._id}
-                    className="p-6 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {new Date(appointment.date).toLocaleDateString("en-IN", {
-                            weekday: "long",
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
-                        </p>
-                        <p className="text-sm text-gray-500">{appointment.timeSlot}</p>
+                {schedule.map((appointment) => {
+                  const appointmentDate = new Date(appointment.date);
+                  return (
+                    <div
+                      key={appointment._id}
+                      className="p-6 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            {appointmentDate.toLocaleDateString("en-IN", {
+                              weekday: "long",
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {appointment.timeSlot}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-sm text-gray-900">
+                            {appointment.patientName}
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-sm text-gray-500">
-                        {appointment.patientName}
-                      </span>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
+                {schedule.length === 0 && (
+                  <p className="text-gray-500 text-center py-4">
+                    No schedule found.
+                  </p>
+                )}
               </div>
             </div>
           </div>

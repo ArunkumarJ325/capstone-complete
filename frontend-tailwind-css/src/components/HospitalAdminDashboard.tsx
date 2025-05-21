@@ -500,6 +500,7 @@ const HospitalAdminDashboard: React.FC = () => {
         doctors={doctors}
         departments={departments}
         handleLogout={handleLogout}
+        hospitalName={hospital?.name || ""}
       />
 
       <div className="dashboard-content">

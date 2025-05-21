@@ -23,17 +23,15 @@ app.use(cors(corsOptions));
 // Routes
 app.use('/api/labs', labDetailsRoutes);
 app.use('/api/lab-tests', labTestRoutes);
+const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/lab-service';
 
-mongoose.connect('mongodb://127.0.0.1:27017/lab-service', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-  .then(() => console.log('Connected to MongoDB'))
+// Connect to MongoDB
+mongoose.connect(mongoUrl)
+  .then(() => console.log(`Connected to MongoDB at ${mongoUrl}`))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
-
 // Start the server
-const port =  5008; //process.env.PORT ||
+const port = process.env.PORT || 5008;
 app.listen(port, () => {
-  console.log(`Consultation service running on port ${port}`);
+  console.log(`Lab service running on port ${port}`);
 });

@@ -1,5 +1,5 @@
 # Use Node.js base image
-FROM node:18
+FROM node:18-slim
 
 # Create app directory
 WORKDIR /app
@@ -10,9 +10,8 @@ RUN npm install
 
 # Copy app source
 COPY . .
-
 # Expose port (adjust if needed)
 EXPOSE 3007
 
 # Start the app
-CMD ["npm", "run","start"]
+CMD ["npm", "run","dev"]

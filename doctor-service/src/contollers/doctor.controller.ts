@@ -371,6 +371,7 @@ export class DoctorController {
   static async getScheduledDates(req: Request, res: Response): Promise<void> {
     try {
       // 1) Verify doctor exists
+      console.log("reached doctor schedule dates method");
       const user = req.user as { id: string; role: string };
       const doctor = await DoctorService.getDoctorByUserId(user.id);
       if (!doctor) {

@@ -20,17 +20,16 @@ app.use(cors());
 app.use('/api/consultations', consultationRoutes);
 //app.use('/api/lab-tests', require('./routes/lab.routes'));
 
+// Use MONGO_URL from environment if available, otherwise default to localhost
+const mongoUrl = process.env.MONGO_URL || 'mongodb://127.0.0.1:27017/consultation-service';
 
-mongoose.connect('mongodb://127.0.0.1:27017/consultation-service', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-  .then(() => console.log('Connected to MongoDB'))
+// Connect to MongoDB
+mongoose.connect(mongoUrl)
+  .then(() => console.log(`Connected to MongoDB at ${mongoUrl}`))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
-
 // Start the server
-const port =  5006; //process.env.PORT ||
+const port = process.env.PORT || 5006;
 app.listen(port, () => {
   console.log(`Consultation service running on port ${port}`);
 });

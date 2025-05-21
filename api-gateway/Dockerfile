@@ -8,6 +8,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
+RUN npm install -g nodemon
+
 # Copy app source
 COPY . .
 
@@ -15,4 +17,4 @@ COPY . .
 EXPOSE 3001
 
 # Start the app
-CMD ["npm", "run","start"]
+CMD ["npm", "run","dev"]

@@ -1,6 +1,16 @@
 version: '3.8'
 
 services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - app-network
+ 
   api-gateway:
     build: ./api-gateway
     ports:
@@ -8,22 +18,32 @@ services:
     restart: always
     networks:
       - app-network
+      
 
   appointment-service:
     build: ./appointment-service
+    
     ports:
       - "3004:3004"
     restart: always
     networks:
       - app-network
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/appointment-service
 
   auth-service:
     build: ./auth-service
+    
     ports:
       - "3001:3001"
     restart: always
     networks:
       - app-network
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/auth-service
+      - JWT_SECRET=supersecretkey
+      - PORT=3001
+
 
   billing-service:
     build: ./billing-service
@@ -32,6 +52,10 @@ services:
     restart: always
     networks:
       - app-network
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/billing-service
+      - JWT_SECRET=supersecretkey
+      - PORT=5009
 
   consulation-service:
     build: ./consulation-service
@@ -40,6 +64,10 @@ services:
     restart: always
     networks:
       - app-network
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/consultation-service
+      - PORT=5006
+      - JWT_SECRET=supersecretkey
 
   department-service:
     build: ./department-service
@@ -48,6 +76,11 @@ services:
     restart: always
     networks:
       - app-network
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/department-service
+      - PORT=3003
+      - JWT_SECRET=supersecretkey
+
 
   doctor-service:
     build: ./doctor-service
@@ -56,6 +89,11 @@ services:
     restart: always
     networks:
       - app-network
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/hospital-db
+      - PORT=3002
+      - JWT_SECRET=supersecretkey
+
 
   hospital-admin-schedule-service:
     build: ./hospital-admin-schedule-service
@@ -64,6 +102,11 @@ services:
     restart: always
     networks:
       - app-network
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/hospital-admin-schedule
+      - PORT=3005
+      - JWT_SECRET=supersecretkey
+
 
   lab-services:
     build: ./lab-services
@@ -72,6 +115,11 @@ services:
     restart: always
     networks:
       - app-network
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017/lab-service
+      - PORT=5008
+      - JWT_SECRET=supersecretkey
+
 
   nurse-service:
     build: ./nurse-service
@@ -80,6 +128,11 @@ services:
     restart: always
     networks:
       - app-network
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/nurse-service
+      - PORT=3007
+      - JWT_SECRET=supersecretkey
+
 
   patient-service:
     build: ./patient-service
@@ -88,6 +141,11 @@ services:
     restart: always
     networks:
       - app-network
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/patient-service
+      - PORT=3006
+      - JWT_SECRET=supersecretkey
+
 
   frontend-tailwind-css:
     build: ./frontend-tailwind-css
@@ -97,7 +155,8 @@ services:
     networks:
       - app-network
     
-
+volumes:
+  mongo-data:
 networks:
   app-network:
     driver: bridge

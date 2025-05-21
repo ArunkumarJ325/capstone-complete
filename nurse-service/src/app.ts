@@ -34,7 +34,7 @@ app.get('/api/nurse/health', (req, res) => {
 
 //Routes
 app.use('/api/nurse', authRoutes);
-
+//
 
 // Error handling middleware
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
